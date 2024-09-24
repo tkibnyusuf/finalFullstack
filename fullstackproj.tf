@@ -65,7 +65,7 @@ resource "aws_s3_object" "object" {
       ".jpg" = "image/jpg"
 
 },
-substr(each.value, length(each.value) -5 -5 ),
+substr(each.value, length(each.value) -5, 5 ),
 "application/octet-stream"
 )
 }
