@@ -1,0 +1,108 @@
+name: Node.js CI
+
+on:
+ push:
+  branches:
+   - devel
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/devel' || github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/prod'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '15.x'
+      - run: cd codebase/rdicidr-0.1.0 && npm install
+      - run: cd codebase/rdicidr-0.1.0 && npm run lint 
+      - run: cd codebase/rdicidr-0.1.0 && npm run prettier 
+      - run: cd codebase/rdicidr-0.1.0 && npm run test
+      - run: cd codebase/rdicidr-0.1.0 && npm run build --if-present
+      - uses: actions/upload-artifact@v3
+        with:
+         name: my-artifact
+         path: codebase/rdicidr-0.1.0/build
+
+
+  deploy_to_dev:
+    if: github.ref == 'refs/heads/devel'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+         name: my-artifact
+         path: codebase/rdicidr-0.1.0/build
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init
+        env: 
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - run: terraform apply -auto-approve -var "environment_name=devel"
+        env: 
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+  deploy_to_stage:
+    if: github.ref == 'refs/heads/stage'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+         name: my-artifact
+         path: codebase/rdicidr-0.1.0/build
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init
+        env: 
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - run: terraform apply -auto-approve -var "environment_name=devel"
+        env: 
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}     
+
+  deploy_to_prod:
+    if: github.ref == 'refs/heads/prod'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+         name: my-artifact
+         path: codebase/rdicidr-0.1.0/build
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init
+        env: 
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - run: terraform apply -auto-approve -var "environment_name=devel"
+        env: 
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}     
+          
+          
+         
+
+
+
+
+
+
+
+
+         
