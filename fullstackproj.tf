@@ -55,7 +55,7 @@ resource "aws_s3_object" "object" {
   source = "/home/runner/work/finalFullstack/finalFullstack/codebase/rdicidr-0.1.0/build/${each.value}"
   acl = "public-read"
 
- content_type = look(
+ content_type = lookup(
    {
       ".html" = "text/html",
       ".css" = "text/css",
