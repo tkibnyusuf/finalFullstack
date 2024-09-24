@@ -39,11 +39,6 @@ resource "aws_s3_bucket_ownership_controls" "example" {
     object_ownership = "BucketOwnerPreferred"
   }
 }
-
-resource "aws_s3_bucket" "example" {
-  bucket = "example"
-}
-
 resource "aws_s3_bucket_public_access_block" "example" {
   bucket = aws_s3_bucket.app_bucket.id
 
@@ -57,7 +52,7 @@ resource "aws_s3_object" "object" {
   for_each = fileset("/home/runner/work/finalFullstack/finalFullstack/codebase/rdicidr-0.1.0/build", "**")
   bucket = aws_s3_bucket.app_bucket.bucket
   key    = each.value
-  source = "/home/runner/work/finalFullstack/finalFullstack/codebase/rdicidr-0.1.0/build/${each.value}
+  source = "/home/runner/work/finalFullstack/finalFullstack/codebase/rdicidr-0.1.0/build/${each.value}"
   acl = "public-read"
 
  content_type = look(
@@ -67,7 +62,7 @@ resource "aws_s3_object" "object" {
       ".js" = "application/javascript",
       ".json" = "application/json",
       ".png" = "image/png",
-      ".jpg" = "image/jpg",
+      ".jpg" = "image/jpg"
 
 },
 substr(each.value, length(each.value) -5 -5 ),
